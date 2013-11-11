@@ -6,7 +6,9 @@ endfunction " }}}
 
 
 function! vim2hs#haskell#editing#indentexpr(lnum) " {{{
-  let l:line = getline(a:lnum - 1)
+  let l:line  = getline(a:lnum - 1)
+  let l:lline = getline(a:lnum - 2)
+  let l:cline = getline('.')
 
   if l:line =~# '^\s*$'
     return 0
@@ -67,8 +69,33 @@ function! vim2hs#haskell#editing#indentexpr(lnum) " {{{
 
   endif
 
+  " guard or data-ctor
+  if l:cline =~# '^\s*|'
+    if l:line =~# '^\s*|'
+      " keep previous guard layout
+      return match(l:line, '|')
+    elseif l:line =~# '^\s*\<data\>'
+      " data
+      return match(l:line, '=')
+    else
+      " maybe guard start
+      return indent(l:line) + &l:shiftwidth
+    endif
+  endif
+
+  " if l:line =~# '^\s*|'
+  "   if l:lline =~# '^\s*|'
+  "     return match(l:line, '|')
+  "   else
+  "     if l:cline =~# '^\s*\<deriving\>'
+  "       return match(l:line, '|')
+  "     else
+  "       return 0
+  "   endif
+  " endif
+
   if synIDattr(synIDtrans(synID(a:lnum - 1, l:indent, 1)), 'name')
-    \ =~# '\%(Comment\|String\)$'
+        \ =~# '\%(Comment\|String\)$'
     return indent(a:lnum - 1)
   endif
 
