@@ -16,7 +16,10 @@ function! vim2hs#haskell#editing#indentexpr(lnum) " {{{
 
   let l:indent = indent(a:lnum - 1)
 
-  if l:line =~# '^data\>.*=.\+'
+  if l:line =~# '^main\>.*=.\+'
+    let l:indent = 2
+
+  elseif l:line =~# '^data\>.*=.\+'
     let l:indent = match(l:line, '=')
 
   elseif l:line =~# '^data\>[^=]\+\|^class\>\|^instance\>'
@@ -50,6 +53,9 @@ function! vim2hs#haskell#editing#indentexpr(lnum) " {{{
     let l:indent = match(l:line, '\<if\>') + &shiftwidth
 
   elseif l:line =~# '\<\%(do\|let\|where\|in\|then\|else\)$'
+    let l:indent = indent(a:lnum - 1) + 6
+
+  elseif l:line =~# '\<\%(let\|in\|then\|else\)$'
     let l:indent = indent(a:lnum - 1) + &shiftwidth
 
   elseif l:line =~# '\<do\>'
